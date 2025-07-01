@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Lunch Ordering{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">
+            <i class="fas fa-tachometer-alt mr-2"></i>
+            Admin Dashboard - {{ today.strftime('%A, %B %d, %Y') }}
+        </h1>
+        <div class="space-x-2">
+            <a href="{{ url_for('export_pdf') }}" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                <i class="fas fa-file-pdf mr-2"></i>Export PDF
+            </a>
+            <a href="{{ url_for('export_csv') }}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                <i class="fas fa-file-csv mr-2"></i>Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Employees -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Total Employees</p>
+                    <p class="text-2xl font-bold">{{ entries|length + users_without_submission|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Having Lunch -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                    <i class="fas fa-utensils text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Having Lunch</p>
+                    <p class="text-2xl font-bold">
+                        {{ entries|selectattr('has_lunch')|list|length }}
+                        <span class="text-sm text-gray-500">
+                            ({{ ((entries|selectattr('has_lunch')|list|length) / (entries|length + users_without_submission|length) * 100)|round(1) if (entries|length + users_without_submission|length) > 0 else 0 }}%)
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not Having Lunch -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+                    <i class="fas fa-utensil-slash text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm">Not Having Lunch</p>
+                    <p class="text-2xl font-bold">
+                        {{ entries|rejectattr('has_lunch')|list|length }}
+                        <span class="text-sm text-gray-500">
+                            ({{ ((entries|rejectattr('has_lunch')|list|length) / (entries|length + users_without_submission|length) * 100)|round(1) if (entries|length + users_without_submission|length) > 0 else 0 }}%)
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lunch List -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium">Today's Lunch List</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for entry in entries %}
+                        <tr class="{% if entry.has_lunch %}bg-green-50{% else %}bg-red-50{% endif %}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ entry.user.name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if entry.has_lunch %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i> Having lunch
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        <i class="fas fa-times mr-1"></i> Not having lunch
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ entry.reason if entry.reason else '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ entry.timestamp.strftime('%I:%M %p') }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% for user in users_without_submission %}
+                        <tr class="bg-yellow-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ user.name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    <i class="far fa-clock mr-1"></i> Not submitted
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reasons Chart -->
+    {% if reasons %}
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-lg font-medium mb-4">Reasons for Not Having Lunch</h2>
+            <div class="space-y-4">
+                {% for reason, count in reasons %}
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium">{{ reason }}</span>
+                            <span class="font-medium">{{ count }} ({{ (count / (entries|rejectattr('has_lunch')|list|length) * 100)|round(1) if (entries|rejectattr('has_lunch')|list|length) > 0 else 0 }}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ (count / (entries|rejectattr('has_lunch')|list|length) * 100) if (entries|rejectattr('has_lunch')|list|length) > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

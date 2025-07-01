@@ -1,0 +1,100 @@
+/* Custom styles for the Lunch Ordering System */
+
+/* Base styles */
+body {
+    @apply bg-gray-50 text-gray-900;
+}
+
+/* Card styles */
+.card {
+    @apply bg-white rounded-lg shadow-md p-6 mb-6;
+}
+
+/* Button styles */
+.btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+}
+
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700;
+}
+
+.btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+/* Form styles */
+.form-control {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* Alert styles */
+.alert {
+    @apply p-4 mb-4 rounded-md;
+}
+
+.alert-success {
+    @apply bg-green-100 text-green-800 border border-green-200;
+}
+
+.alert-danger {
+    @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+.alert-info {
+    @apply bg-blue-100 text-blue-800 border border-blue-200;
+}
+
+/* Utility classes */
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Animation for notifications */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .container {
+        @apply px-4;
+    }
+    
+    .btn {
+        @apply w-full text-center justify-center;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
